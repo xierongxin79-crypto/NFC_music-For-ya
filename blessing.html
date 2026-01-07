@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>收到一份新年的祝福</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden; /* 禁止滚动条 */
+            background: #a30000; /* 喜庆的深红色背景 */
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        
+        /* 飘字的样式 */
+        .danmu {
+            position: absolute;
+            white-space: nowrap;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            transform: translateX(100vw); /* 从屏幕右侧外开始 */
+            will-change: transform;
+        }
+
+        /* 中心按钮样式 */
+        .center-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 100; /* 保证在飘字上面 */
+        }
+        
+        .fu-btn {
+            width: 120px;
+            height: 120px;
+            background: #ffd700;
+            color: #d90000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            font-weight: bold;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+            cursor: pointer;
+            border: 4px solid #fff;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes moveLeft {
+            from { transform: translateX(100vw); }
+            to { transform: translateX(-100%); }
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="bgm" src="music.mp3" loop></audio>
+
+    <div class="center-box">
+        <div class="fu-btn" onclick="startShow()">福</div>
+        <p style="color: gold; margin-top: 20px;">点击开启祝福</p>
+    </div>
+
+    <script>
+        // 这里定义你想飘的字，可以随便改
+        const texts = [
+            "福气满满", "2026新年快乐", "心想事成", 
+            "身体健康", "好运连连", "万事如意", 
+            "平安喜乐", "财源广进", "✨✨✨", 
+            "前程似锦", "岁岁平安"
+        ];
+
+        function startShow() {
+            // 1. 播放音乐
+            document.getElementById('bgm').play();
+            
+            // 2. 隐藏按钮文字，防止挡视线（可选）
+            document.querySelector('.center-box p').style.display = 'none';
+
+            // 3. 开始无限生成弹幕
+            setInterval(createDanmu, 300); // 每0.3秒生成一个
+        }
+
+        function createDanmu() {
+            const span = document.createElement('span');
+            span.className = 'danmu';
+            
+            // 随机取一句话
+            span.innerText = texts[Math.floor(Math.random() * texts.length)];
+            
+            // 随机大小 (20px 到 50px)
+            const size = Math.floor(Math.random() * 30) + 20;
+            span.style.fontSize = size + 'px';
+            
+            // 随机垂直位置 (0% 到 90%)
+            span.style.top = Math.floor(Math.random() * 90) + '%';
+            
+            // 随机颜色 (金色或白色)
+            span.style.color = Math.random() > 0.5 ? '#fff' : '#ffd700';
+
+            // 随机速度 (5秒 到 10秒 跑完全程)
+            const duration = Math.random() * 5 + 5;
+            span.style.animation = `moveLeft ${duration}s linear forwards`;
+
+            document.body.appendChild(span);
+
+            // 跑完后删除元素，防止网页卡顿
+            setTimeout(() => {
+                span.remove();
+            }, duration * 1000);
+        }
+    </script>
+</body>
+</html>
