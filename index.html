@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>给你的福气 - For Ya</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background: linear-gradient(135deg, #fce38a, #f38181);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Helvetica Neue', sans-serif;
+            color: white;
+        }
+        .cover {
+            width: 200px;
+            height: 200px;
+            /* 这里可以用你那个“福”字 PCB 的照片做封面 */
+            background-color: #333; 
+            border-radius: 50%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            animation: rotate 10s linear infinite;
+            animation-play-state: paused;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            border: 5px solid rgba(255,255,255,0.3);
+        }
+        /* 简单的旋转动画，模仿唱片 */
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .playing {
+            animation-play-state: running;
+        }
+        h2 { margin: 0; font-weight: 300; letter-spacing: 2px; }
+        p { margin: 10px 0 30px 0; font-size: 0.9em; opacity: 0.8; }
+        
+        button {
+            background: white;
+            color: #f38181;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        button:active { transform: scale(0.95); }
+    </style>
+</head>
+<body>
+
+    <div class="cover" id="album-art">福</div>
+
+    <h2>给你呀</h2>
+    <p>Jiang Xiao Ne</p>
+
+    <audio id="audio" src="蒋小呢 - 给你呀（又名：for ya）.mp3" loop></audio>
+
+    <button onclick="togglePlay()" id="playBtn">点击收听</button>
+
+    <script>
+        var audio = document.getElementById("audio");
+        var cover = document.getElementById("album-art");
+        var btn = document.getElementById("playBtn");
+
+        function togglePlay() {
+            if (audio.paused) {
+                audio.play();
+                cover.classList.add("playing");
+                btn.innerHTML = "正在播放...";
+            } else {
+                audio.pause();
+                cover.classList.remove("playing");
+                btn.innerHTML = "暂停";
+            }
+        }
+    </script>
+</body>
+</html>
