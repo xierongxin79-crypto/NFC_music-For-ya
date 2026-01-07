@@ -3,94 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>收到一份新年的祝福</title>
+    <title>给你的福气 - For Ya (新年特别版)</title>
     <style>
         body {
             margin: 0;
             overflow: hidden; /* 禁止滚动条 */
+            height: 100vh;
             background: #a30000; /* 喜庆的深红色背景 */
-            font-family: "Microsoft YaHei", sans-serif;
+            font-family: "Microsoft YaHei", "Helvetica Neue", sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
         }
-        
-        /* 飘字的样式 */
+
+        /* --- 飘字弹幕样式 (来自页面2) --- */
         .danmu {
             position: absolute;
             white-space: nowrap;
-            color: rgba(255, 255, 255, 0.8);
             font-weight: bold;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
             transform: translateX(100vw); /* 从屏幕右侧外开始 */
             will-change: transform;
-        }
-
-        /* 中心按钮样式 */
-        .center-box {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            z-index: 100; /* 保证在飘字上面 */
-        }
-        
-        .fu-btn {
-            width: 120px;
-            height: 120px;
-            background: #ffd700;
-            color: #d90000;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 50px;
-            font-weight: bold;
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
-            cursor: pointer;
-            border: 4px solid #fff;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
+            z-index: 1; /* 在背景之上，但在按钮之下 */
+            pointer-events: none; /* 让弹幕不影响点击 */
         }
 
         @keyframes moveLeft {
             from { transform: translateX(100vw); }
             to { transform: translateX(-100%); }
         }
+
+        /* --- 中心控制区样式 --- */
+        .center-box {
+            position: relative;
+            z-index: 100; /* 保证在飘字上面 */
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        /* 融合了页面1的旋转封面和页面2的福字按钮 */
+        .fu-disk {
+            width: 200px;
+            height: 200px;
+            background: #ffd700;
+            color: #d90000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            font-weight: bold;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+            cursor: pointer;
+            border: 8px solid #fff;
+            
+            /* 如果你有PCB照片，请取消下面这行的注释并替换图片路径 */
+            /* background-image: url('你的PCB照片.jpg'); background-size: cover; color: transparent; */
+
+            transition: transform 0.5s;
+        }
+
+        /* 状态1：等待播放时的呼吸动画 (来自页面2) */
+        .fu-disk.paused {
+            animation: pulse 2s infinite;
+        }
+
+        /* 状态2：播放时的旋转动画 (来自页面1) */
+        .fu-disk.playing {
+            animation: rotate 10s linear infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .hint-text {
+            color: gold;
+            margin-top: 30px;
+            font-size: 18px;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            transition: opacity 0.5s;
+        }
+
+        /* 歌曲信息 (来自页面1) */
+        .song-info {
+            color: rgba(255,255,255,0.8);
+            margin-top: 10px;
+            font-size: 14px;
+            opacity: 0; /* 默认隐藏，播放时显示 */
+            transition: opacity 1s;
+        }
     </style>
 </head>
 <body>
 
-    <audio id="bgm" src="蒋小呢-给你呀（又名：for ya）.mp3" loop></audio>
+    <audio id="bgm" src="蒋小呢 - 给你呀（又名：for ya）.mp3" loop></audio>
 
     <div class="center-box">
-        <div class="fu-btn" onclick="startShow()">福</div>
-        <p style="color: gold; margin-top: 20px;">点击开启祝福</p>
+        <div class="fu-disk paused" id="diskBtn" onclick="toggleShow()">福</div>
+        
+        <p class="hint-text" id="hint">点击开启祝福</p>
+        
+        <p class="song-info" id="songInfo">♫ 正在播放：Jiang Xiao Ne - 给你呀</p>
     </div>
 
     <script>
-        // 这里定义你想飘的字，可以随便改
+        // --- 1. 配置数据 ---
         const texts = [
             "福气满满", "2026新年快乐", "心想事成", 
             "身体健康", "好运连连", "万事如意", 
             "平安喜乐", "财源广进", "✨✨✨", 
-            "前程似锦", "岁岁平安"
+            "前程似锦", "岁岁平安", "吉祥如意"
         ];
 
-        function startShow() {
-            // 1. 播放音乐
-            document.getElementById('bgm').play();
-            
-            // 2. 隐藏按钮文字，防止挡视线（可选）
-            document.querySelector('.center-box p').style.display = 'none';
+        // --- 2. 变量初始化 ---
+        var audio = document.getElementById("bgm");
+        var disk = document.getElementById("diskBtn");
+        var hint = document.getElementById("hint");
+        var songInfo = document.getElementById("songInfo");
+        
+        var isPlaying = false;
+        var danmuInterval = null; // 用于存储弹幕的定时器
 
-            // 3. 开始无限生成弹幕
-            setInterval(createDanmu, 300); // 每0.3秒生成一个
+        // --- 3. 主控制函数 ---
+        function toggleShow() {
+            if (isPlaying) {
+                pauseShow();
+            } else {
+                startShow();
+            }
         }
 
+        function startShow() {
+            // 播放音乐
+            audio.play();
+            
+            // 切换动画状态：移除呼吸，添加旋转
+            disk.classList.remove("paused");
+            disk.classList.add("playing");
+            
+            // 更新文字提示
+            hint.style.opacity = "0"; // 隐藏提示
+            songInfo.style.opacity = "1"; // 显示歌名
+
+            // 开始生成弹幕 (防止重复点击生成多个定时器)
+            if (!danmuInterval) {
+                danmuInterval = setInterval(createDanmu, 300); 
+            }
+            
+            isPlaying = true;
+        }
+
+        function pauseShow() {
+            // 暂停音乐
+            audio.pause();
+            
+            // 切换动画状态：停止旋转，恢复呼吸
+            disk.classList.remove("playing");
+            disk.classList.add("paused");
+            
+            // 更新文字
+            hint.innerText = "已暂停 (点击继续)";
+            hint.style.opacity = "1";
+            songInfo.style.opacity = "0.5";
+
+            // 停止生成新弹幕 (已生成的会让它飘完)
+            clearInterval(danmuInterval);
+            danmuInterval = null;
+
+            isPlaying = false;
+        }
+
+        // --- 4. 弹幕生成逻辑 (来自页面2) ---
         function createDanmu() {
             const span = document.createElement('span');
             span.className = 'danmu';
@@ -102,10 +197,10 @@
             const size = Math.floor(Math.random() * 30) + 20;
             span.style.fontSize = size + 'px';
             
-            // 随机垂直位置 (0% 到 90%)
-            span.style.top = Math.floor(Math.random() * 90) + '%';
+            // 随机垂直位置 (5% 到 90%，避开极顶和极底)
+            span.style.top = Math.floor(Math.random() * 85) + 5 + '%';
             
-            // 随机颜色 (金色或白色)
+            // 随机颜色 (白色 或 金色)
             span.style.color = Math.random() > 0.5 ? '#fff' : '#ffd700';
 
             // 随机速度 (5秒 到 10秒 跑完全程)
@@ -114,7 +209,7 @@
 
             document.body.appendChild(span);
 
-            // 跑完后删除元素，防止网页卡顿
+            // 跑完后删除元素，防止内存泄漏
             setTimeout(() => {
                 span.remove();
             }, duration * 1000);
